@@ -10,9 +10,9 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 
 public class ReverseProxyServer {
-    private static final int port = 9091;
+    private static final int port = 8800;
     private String targetHost = "localhost";
-    private int targetPort = 9092;
+    private int targetPort = 8000;
 
     public void startServer(int localPort) throws IOException {
         Selector selector = Selector.open();
@@ -52,7 +52,7 @@ public class ReverseProxyServer {
         clientChannel.configureBlocking(false);
 
         SocketChannel targetChannel = SocketChannel.open();
-        targetChannel.connect(new InetSocketAddress(targetHost, targetPort));
+        targetChannel.connect(new InetSocketAddress(targetHost, targetPort++));
         targetChannel.configureBlocking(false);
 
         // Associa o cliente ao target e o target ao cliente usando o attachment do SelectionKey.
@@ -80,16 +80,16 @@ public class ReverseProxyServer {
         // Escrevendo dados do cliente para o target:
         if (key.attachment() instanceof SocketChannel && toChannel != null) {
             if (fromChannel.socket().getLocalPort() == port) {
-                System.out.println("Relaying data from client to target: " + bytesRead + " bytes");
+                System.out.println("Relaying data from client to target (" +fromChannel.socket().getPort()+"): " + bytesRead + " bytes");
             } else {
-                System.out.println("Relaying data from target to client: " + bytesRead + " bytes");
+                System.out.println("Relaying data from target to client (" +fromChannel.socket().getPort()+"): " + bytesRead + " bytes");
             }
         }
 
         toChannel.write(buffer); // Envia os dados para o canal de destino.
         buffer.compact(); // Prepara o buffer para a próxima leitura.
 
-        System.out.println("Data relayed: " + bytesRead + " bytes");
+        System.out.println("Data relayed (" + toChannel.socket().getPort()+ "): " + bytesRead + " bytes");
     }
 
     private void closeConnection(SelectionKey key) throws IOException {

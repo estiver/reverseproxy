@@ -13,9 +13,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class ReverseProxyServerMThread {
-	private static final int port = 9091;
+	private static final int port = 8001;
 	private String targetHost = "localhost";
-	private int targetPort = 9092;
+	private int targetPort = 8000;
 	
 	private ExecutorService executorService;
 	private final ReentrantLock lock = new ReentrantLock();
